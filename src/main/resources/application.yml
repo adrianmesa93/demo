@@ -29,3 +29,9 @@ spring:
       type: redis
       redis:
         time-to-live: 10m
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: saas_rabbit
+    password: rabbit_password

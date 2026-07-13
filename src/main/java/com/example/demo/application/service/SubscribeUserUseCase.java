@@ -1,6 +1,8 @@
 package com.example.demo.application.service;
 
 import com.example.demo.application.dto.SubscribeUserCommand;
+import com.example.demo.domain.event.EventPublisher;
+import com.example.demo.domain.event.SubscriptionCreatedEvent;
 import com.example.demo.domain.model.Plan;
 import com.example.demo.domain.model.Subscription;
 import com.example.demo.domain.repository.PlanRepository;
@@ -17,11 +19,13 @@ public class SubscribeUserUseCase {
     private final UserRepository userRepository;
     private final PlanRepository planRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final EventPublisher eventPublisher;
 
-    public SubscribeUserUseCase(UserRepository userRepository, PlanRepository planRepository, SubscriptionRepository subscriptionRepository){
+    public SubscribeUserUseCase(UserRepository userRepository, PlanRepository planRepository, SubscriptionRepository subscriptionRepository, EventPublisher eventPublisher){
         this.userRepository = userRepository;
         this.planRepository = planRepository;
         this.subscriptionRepository = subscriptionRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public Subscription execute(SubscribeUserCommand command){
@@ -49,6 +53,15 @@ public class SubscribeUserUseCase {
                 endDate
         );
 
-        return subscriptionRepository.save(newSubscription);
+        Subscription savedSubscription = subscriptionRepository.save(newSubscription);
+
+        SubscriptionCreatedEvent event = new SubscriptionCreatedEvent(
+                savedSubscription.id(),
+                savedSubscription.userId(),
+                savedSubscription.planId()
+        );
+        eventPublisher.publishSubscriptionCreated(event);
+
+        return savedSubscription;
     }
 }

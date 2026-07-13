@@ -19,5 +19,15 @@ services:
     ports:
       - "6379:6379"
 
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: saas_rabbitmq
+    ports:
+      - "5672:5672"   # Puerto para que Spring envíe mensajes
+      - "15672:15672" # Puerto para acceder al panel de control web
+    environment:
+      RABBITMQ_DEFAULT_USER: saas_rabbit
+      RABBITMQ_DEFAULT_PASS: rabbit_password
+
 volumes:
   postgres_data:
